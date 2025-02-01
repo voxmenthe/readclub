@@ -1,3 +1,4 @@
+import React from 'react';
 import BookLayout from '@/components/layout/BookLayout';
 import ReaderView from '@/components/reader/ReaderView';
 
@@ -16,10 +17,14 @@ interface BookPageProps {
   };
 }
 
-export default function BookPage({ params }: BookPageProps) {
+// This is a Server Component
+export default async function BookPage({ params }: BookPageProps) {
+  // In a real app, we would fetch the book data here
+  // const book = await getBookById(params.bookId);
+  
   return (
     <BookLayout>
-      {/* @TODO: Replace with real data from Supabase */}
+      {/* ReaderView is a Client Component that receives the bookId */}
       <ReaderView bookId={params.bookId} />
     </BookLayout>
   );

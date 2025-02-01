@@ -132,25 +132,42 @@ src/
 **Requirements**  
 - Present the selected book's text in an easy-to-read format.  
 - Show reading progress.  
-- Display the most recent Q&A interaction prominently in the reading pane.
+- Enable seamless text selection and question formulation:
+  - Selected text automatically populates the question input area
+  - Users can edit both the selected text and their question in one place
+  - Clear visual distinction between selected text and question input
+  - Support for keyboard shortcuts (e.g., Cmd/Ctrl+Enter to submit)
+  - Automatic focus management for fluid interaction
+- Display the most recent Q&A interaction prominently.
 - Show a scrollable history of past questions and discussions.
 - Provide a collapsible right-side pane showing a macro-level document summary.
 - Optionally show icons or markers where past AI conversations exist.
 
 **Implementation Steps**  
-1. **ReaderView**: Layout with (a) left sidebar or top nav, (b) main reading pane, (c) Dewey panel (initially hidden), (d) collapsible macro summary pane on the right.  
-2. **TextContent**: Render paragraphs with unique IDs or indexes (for conversation references).  
-3. **ProgressBar**: Calculate reading progress based on scroll position vs. total text length.  
-4. **Q&A Display**:
-   - Show the most recent Q&A interaction at the top of the reading pane
-   - Provide a scrollable list of past questions and discussions below
-   - Each past question should be clickable to view the full conversation
-5. **MacroSummaryPane**:
-   - Collapsible right-side panel showing document-wide context and structure
-   - Maintain high-level summary of the entire document
-   - Contrast with main pane's focus on current viewport context
-   - Allow quick navigation to different document sections
-6. **Conversation Markers**: If the user has prior conversation data, place icons or highlights next to paragraphs.
+1. **ReaderView**: Layout with:
+   - Left sidebar or top nav
+   - Main reading pane
+   - Integrated question input area
+   - Dewey panel (initially hidden)
+   - Collapsible macro summary pane on the right
+2. **TextContent**: 
+   - Render paragraphs with unique IDs or indexes
+   - Handle text selection events
+   - Manage selection state and coordinate with question input
+3. **QuestionInput**:
+   - Pre-populate with selected text
+   - Allow seamless editing of both text and question
+   - Provide clear visual separation between context and question
+   - Support markdown formatting
+   - Handle keyboard shortcuts
+   - Manage focus states
+4. **ProgressBar**: Calculate reading progress based on scroll position.
+5. **Q&A Display**:
+   - Show recent Q&A at the top
+   - Provide scrollable history below
+   - Make past questions clickable
+6. **MacroSummaryPane**: Show document-wide context
+7. **Conversation Markers**: Place icons next to paragraphs with prior conversations
 
 **Testing**  
 - **Test**: The reading page loads text from Supabase for the correct `bookId`.  
@@ -160,23 +177,38 @@ src/
 - **Test**: Macro summary pane can be collapsed/expanded and shows correct document-wide context.
 - **Test**: For a known conversation in paragraph N, verify an icon appears next to that paragraph.
 
-### 6.4 AI Assistant (Dewey)
+### 6.4 AI Assistant (Dewey Panel)
 
 **Requirements**  
-- Appears as a collapsible pane or modal.  
-- Displays the user's question and AI responses.  
-- Allows actions: "Explain," "Discuss," "Quiz," "Recap," "Look up in book."
+- Provide an integrated question formulation experience:
+  - Seamlessly combine selected text and user questions
+  - Allow editing of context and questions together
+  - Support rich text formatting
+  - Clear visual hierarchy between selected text and question
+- Handle various AI interactions (explain, discuss, quiz, etc.)
+- Show conversation history
+- Support panel collapse/expand
+- Provide clear loading and error states
 
 **Implementation Steps**  
-1. **DeweyPanel**: A sidebar that can open/close; holds conversation messages.  
-2. **ActionButtons**: The user can choose an action after highlighting text or from pre-labeled buttons.  
-3. **ChatHistory**: Renders conversation messages from in-memory or Supabase.  
-4. **Highlight-based Summons**: Listen for `mouseup` on the reading pane; if text is selected, show a small floating button (or automatically open Dewey with that text as context).
-
-**Testing**  
-- **Test**: Selecting text triggers the Dewey panel to open with the snippet in a quote block.  
-- **Test**: Clicking "Explain" hits the correct Next.js API endpoint and returns an AI answer.  
-- **Test**: "Quiz" generates a question/answer set or flashcards in the UI.
+1. **DeweyPanel**: 
+   - Collapsible sidebar with smooth transitions
+   - Integrated question input area
+   - Action buttons for different AI interactions
+   - Conversation history display
+2. **QuestionFormulation**:
+   - Combined editor for selected text and questions
+   - Clear visual separation between context and question
+   - Markdown support for formatting
+   - Keyboard shortcuts for common actions
+3. **ActionButtons**: 
+   - Primary actions (Explain, Discuss, Quiz, etc.)
+   - Clear loading states
+   - Error handling
+4. **ChatHistory**: 
+   - Render conversation messages
+   - Support for rich text formatting
+   - Clear visual hierarchy
 
 ### 6.5 Conversation Persistence
 

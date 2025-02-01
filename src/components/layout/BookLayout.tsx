@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Header from './Header';
-import DeweyPanel from '../dewey/DeweyPanel';
 
 interface BookLayoutProps {
   children: React.ReactNode;
@@ -14,7 +13,6 @@ export default function BookLayout({ children }: BookLayoutProps) {
       <Header />
       <main className="relative">
         {children}
-        <DeweyPanel />
       </main>
     </div>
   );

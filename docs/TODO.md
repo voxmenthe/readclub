@@ -3,15 +3,22 @@
 ## Next Milestone: Text Selection & Basic Dewey Interaction
 
 ### High Priority
-1. **Text Selection Implementation**
+1. **Text Selection & Question Input Implementation**
    - Add text selection event listeners to `TextContent`
-   - Create floating action button that appears on text selection
-   - Implement selected text preview in Dewey panel
+   - Create question input component in Dewey panel that:
+     - Pre-populates with selected text
+     - Allows editing of both selected text and question
+     - Has clear visual separation between text and question
+     - Supports markdown formatting
+   - Add keyboard shortcuts for common actions
+   - Implement proper focus management
 
 2. **Dewey Panel Improvements**
    - Add collapse/expand functionality
+   - Create question input component
    - Implement proper scroll behavior for chat history
    - Add loading states for future AI interactions
+   - Style the question input area to match the screenshot
 
 3. **Progress Bar Implementation**
    - Add scroll position tracking
