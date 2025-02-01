@@ -1,380 +1,337 @@
-# Technical Product Requirements Document (PRD) for the "AI Reading Club" project
+# Technical Product Requirements Document (PRD) for the "AI Reading Club"
 
 ## 1. Overview
-Product Name: AI Reading Club (powered by "Dewey" – the AI reading companion)
-Goal: Provide an AI-enhanced reading experience that helps users read more effectively, stay engaged, and learn via features like inline Q&A, context-based summaries, quizzes/flashcards, and recaps of previously read chapters.
 
-This PRD outlines the key technical components, architecture, and requirements based on:
+**Product Name**: AI Reading Club (powered by "Dewey" – the AI reading companion)  
+**Goal**: Provide an AI-enhanced reading experience that helps users read more effectively, stay engaged, and learn via inline Q&A, context-based summaries, quizzes/flashcards, and recaps of previously read chapters.
 
-The blog post describing the prototype, core functionality, and UI/UX goals.
-Screenshots showing an interactive reading pane, AI assistant chat pane, and library management.
-Additional library choices (React, shadcn) for streamlined frontend development.
+---
 
 ## 2. Key Features & Functional Requirements
 
-### Library Screen
+1. **Library Screen**  
+   - Display a list of available public-domain books (e.g., from Project Gutenberg).  
+   - Show book metadata (title, author, genre), and allow searching/filtering.  
+   - Upon selection, navigate to the Reading Screen.
 
-Display a list of available books (seeded from a public domain source such as Project Gutenberg).
-Show metadata (title, author, genre).
-Allow users to search or filter by title/genre.
-On selection, navigate to the reading screen for that book.
+2. **Reading Screen**  
+   - Central reading pane with minimal clutter.  
+   - The user can select text to get help from Dewey (the AI assistant).  
+   - A collapsible AI assistant pane for Q&A, summaries, quizzes, and "look up in book."  
+   - "Stickies" or icons in the margin to revisit past conversations.
 
-###  Reading Screen
+3. **AI Assistant (Dewey)**  
+   - Understand context from user selections and the broader book.  
+   - Provide Q&A, quizzes/flashcards, recaps, and "look up in book" references.  
+   - Maintain conversation history with user.
 
-Provide a clean, distraction-free layout to display book text.
-Ensure minimal clutter so the reading experience is central.
-Let users select text to summon the AI assistant (Dewey) for questions, clarifications, or quizzes.
-Show a "Dewey" button that toggles the AI assistant pane on/off.
-Support additional interactive features:
-Recap: Summarize recent chapters or sections.
-Look up in book: Retrieve references to previously mentioned terms or characters.
-Quizzes: Generate flashcards or quizzes based on the selected text.
-Review Past Discussions: Indicate where past interactions occurred (via "stickies" or icons) and let users revisit them.
-AI Assistant (Dewey)
+4. **User Profile & Reading Progress**  
+   - Track reading location (percentage read).  
+   - (Optional) Store user interactions if signed in (via Supabase).
 
-### Context Awareness:
-
-Display explicit context from user-selected text.
-Allow background retrieval from full text so the AI can enrich responses with broader context.
-
-* Q&A: Answer questions about the reading, clarify sections, or provide expansions (interpretation, analysis, references).
-* Quizzes/Flashcards: When requested, generate relevant questions or interactive flashcards on the highlighted text.
-* Recap: Summarize what has been read so far to help users catch up after a pause.
-* Look up in Book: Quickly retrieve references to a term or character from previously read text.
-* Conversation History: store, display, and allow re-access to previous interactions either via markers next to paragraphs or in a dedicated reading history pane.
-
-### User Profile & Reading Progress
-
-Track reading progress (percentage read, last location).
-Potentially store user's AI interactions for quick recall or re-display in the reading pane.
-(Optional) Future expansions for user login, bookmarks, etc.
+---
 
 ## 3. Technical Architecture
 
-### 3.1 Frontend
+1. **Frontend**  
+   - **Next.js (React)**: for routing, server-side rendering, and page organization.  
+   - **UI Library**: React + shadcn (Tailwind-based).  
+   - **State Management**: React hooks and/or Next.js app directory features for data fetching.  
 
-Framework: Next.js (React)
+2. **Backend**  
+   - **Database**: Supabase (PostgreSQL).  
+   - **LLM Provider**: Integrate with Anthropic, OpenAI, or Google Gemini.  
+   - **Deployment**: Hosted on Railway (or a similar service) to manage Next.js + Supabase.  
 
-Manages server-side rendering and static site generation for improved performance.
-Simplifies routing between the library and reading screens.
-UI Layer: React + shadcn
+3. **Data Flow**  
+   - The library screen fetches book metadata (titles, authors) from Supabase.  
+   - The reading screen pulls full text from Supabase (or SSG/SSR in Next.js).  
+   - When the user interacts with Dewey, requests go through a Next.js API route that calls an LLM API and returns a JSON response.  
+   - Conversations may be stored in Supabase (for persistent user history) or in-memory (for anonymous/ephemeral sessions).
 
-shadcn provides a set of design system components built on Tailwind CSS.
-Helps maintain a consistent, aesthetic, and easily customizable UI (e.g., modals for the AI assistant, list components for the library).
-React handles state management for reading progress, AI query results, etc.
-Styling & Layout:
+---
 
-Tailwind CSS (used under the hood by shadcn).
-The reading pane focuses on a typography-friendly style with minimal distractions (large text, adequate spacing, dark/light modes if desired).
-Interactions & State Management:
+## 4. Data Flow & Sequence
 
-React Hooks or a state library such as Redux (optional) or Next.js's built-in data fetching for server and client states.
-Store conversation states, quiz questions, and reading progress in a local store or global context.
-Maintain ephemeral states (e.g., currently highlighted text) in React component state.
+1. **User opens the app** → Library Screen loads books from Supabase.  
+2. **User selects a book** → Reading Screen fetches that book's text and renders it.  
+3. **User highlights text** → The AI assistant panel can be shown to handle user requests (Q&A, quiz, etc.).  
+4. **LLM call** → Next.js server sends the request to the LLM provider; returns an answer.  
+5. **Conversation stored** → If the user is signed in, the interaction is stored in Supabase (book ID, conversation ID, text snippet).  
+6. **User revisits old Q&A** → "Stickies" or markers link back to stored conversations.
 
-### 3.2 Backend
-
-Database & Storage: Supabase (PostgreSQL)
-
-Tables:
-
-- books: For storing metadata (title, author, genre) and content. Possibly store text in a text or jsonb field.
-- users (if implementing authentication): Basic user profile, preferences, reading states.
-- conversations: For saving user–AI interactions tied to each user/book location.
-
-Supports row-level security, easy setup, and excellent documentation for quick iteration.
-
-AI Provider Integration:
-
-- Anthropic, Gemini, OpenAI:
-  - Use one or more LLM endpoints to handle queries.
-  - Provide specialized calls for summarization, Q&A, or knowledge retrieval.
-  - Each provider can be called via the Next.js API routes on the server side:
-    - Preprocess request (extract selected text, form context prompt).
-Call the chosen LLM API with relevant parameters (e.g., temperature, max tokens).
-Postprocess response for display in the UI (truncation, styling, etc.).
-Deployment & DevOps: Railway
-
-Used to host the Next.js application and Supabase instance or connect to a managed Supabase deployment.
-Provides easy scaling and integrated logging.
-railway up for quick deploy, with environment variables for LLM provider keys.
-
-### 4. Data Flow & Sequence
-
-#### User Launches App:
-
-The Next.js server serves the landing page showing the Library Screen.
-A GET request fetches the list of books from Supabase, displayed in a minimal shadcn-based list component.
-
-#### User Selects Book:
-
-Navigates via a Next.js route (e.g., /books/[bookId]) to the Reading Screen.
-A GET request fetches the book's content from Supabase.
-The reading UI displays the text in a scrollable container with "stickies" or icons for previous interactions.
-
-#### User Interacts with Dewey:
-
-On text highlight or "Dewey" button click, the app shifts focus to the AI assistant.
-The user can:
-Ask a question
-Generate a quiz/flashcards
-Request a recap or "look up in book"
-A POST request is sent to the Next.js API route with:
-Book ID, user ID (optional if not anonymous), selected text, last read location
-Desired action (Q&A, Quiz, Summary, etc.), plus any previous conversation context
-The server calls the appropriate LLM API.
-The server returns a JSON payload with the AI's response.
-The app displays the result in the assistant pane.
-
-#### Storing Interactions:
-
-For each AI exchange, store the text snippet, user question, and AI response in the conversations table (if user is signed in / if persistent history is required).
-For local or anonymous usage, store session-based conversation in client state only.
-
-#### Review Past Discussions:
-
-The reading screen renders an icon or "sticky" next to paragraphs with stored conversations.
-Clicking it fetches the conversation from the conversations table or local state.
-The conversation is displayed either inline or in the AI assistant pane.
+---
 
 ## 5. Non-Functional Requirements
 
-### Performance & Scalability
+1. **Performance**: Quick load times for the library and reading text; LLM responses within ~2–3 seconds.  
+2. **Scalability**: Design for many books, large amounts of text, multiple concurrent AI requests.  
+3. **Security & Privacy**: LLM API keys in server environment variables; user data protected (row-level security in Supabase).  
+4. **Reliability & Monitoring**: Use logs to monitor usage, handle errors gracefully.  
+5. **Extensibility**: The codebase should easily allow new features like voice queries, advanced note-taking, etc.
 
-Next.js and shadcn-based components must render quickly (especially for large text blocks).
-On the server side, LLM calls must be optimized to avoid timeouts, with request concurrency handled by the provider's rate limits and the hosting environment.
-
-### Security & Privacy
-
-Users may remain anonymous, but any stored data should be protected if they create an account (e.g., row-level security in Supabase).
-LLM keys are stored in environment variables (never exposed to the client).
-
-### Reliability & Monitoring
-
-Use Railway logs or your own logging solution to monitor request volume, error rates, performance bottlenecks.
-Consider fallback or p99 timeouts for external LLM calls to handle slow responses.
-
-### Extensibility
-
-Clear separation of concerns in Next.js for library management, reading display, and AI integration.
-The UI design in React + shadcn ensures components can be repurposed for new features (e.g., voice input, custom user quizzes).
+---
 
 ## 6. Implementation Details by Feature
 
-### Project Structure
-```typescript
+### 6.1 Project Structure
+
+A recommended structure is:
+
+```
 src/
-  ├── components/
-  │   ├── layout/
-  │   │   ├── Header.tsx          # Top navigation bar
-  │   │   └── BookLayout.tsx      # Reading screen layout wrapper
-  │   ├── library/
-  │   │   ├── BookList.tsx        # Main library view
-  │   │   ├── BookCard.tsx        # Individual book entry
-  │   │   └── SearchBar.tsx       # Library search/filter
-  │   ├── reader/
-  │   │   ├── ReaderView.tsx      # Main reading pane
-  │   │   ├── TextContent.tsx     # Book text display
-  │   │   └── ProgressBar.tsx     # Reading progress indicator
-  │   └── dewey/
-  │       ├── DeweyPanel.tsx      # AI assistant sidebar
-  │       ├── ChatHistory.tsx     # Conversation display
-  │       └── ActionButtons.tsx    # Explain/Discuss/Quiz buttons
-  ├── pages/
-  │   ├── index.tsx               # Library page
-  │   ├── books/
-  │   │   └── [bookId].tsx        # Reading page
-  │   └── api/
-  │       └── dewey/
-  │           ├── chat.ts         # AI conversation endpoint
-  │           └── actions.ts      # Special actions (quiz, recap, etc.)
-  └── lib/
-      ├── supabase/              # Database client & types
-      └── ai/                    # AI provider integration
+  ├─ components/
+  │   ├─ library/
+  │   │   ├─ BookList.tsx       # Renders list of books
+  │   │   ├─ BookCard.tsx       # Individual book UI
+  │   │   └─ SearchBar.tsx      # Search/filter input
+  │   ├─ reader/
+  │   │   ├─ ReaderView.tsx     # Main reading layout
+  │   │   ├─ TextContent.tsx    # Displays paragraphs of the book
+  │   │   ├─ ProgressBar.tsx    # Shows % read
+  │   │   └─ MacroSummary.tsx   # Right-side document summary pane
+  │   ├─ dewey/
+  │   │   ├─ DeweyPanel.tsx     # AI assistant sidebar
+  │   │   ├─ ChatHistory.tsx    # Conversation display
+  │   │   └─ ActionButtons.tsx  # Buttons for Q&A, Recap, Quiz, etc.
+  │   └─ layout/
+  │       ├─ Header.tsx         # Main header / nav
+  │       └─ BookLayout.tsx     # Shared layout for reading screen
+  ├─ pages/
+  │   ├─ index.tsx              # Library page
+  │   ├─ books/
+  │   │   └─ [bookId].tsx       # Reading page
+  │   └─ api/
+  │       └─ dewey/
+  │           ├─ chat.ts        # AI conversation endpoint
+  │           └─ actions.ts     # Quiz/Recap/Lookup endpoints
+  └─ lib/
+      ├─ supabase/              # Database client & query helpers
+      └─ ai/                    # Integration with LLM providers
 ```
 
-### Component Details
+### 6.2 Library Screen
 
-#### Library Screen
-- Use `shadcn` list and card components for book display
-- Each book entry shows:
-  - Title (primary text)
-  - Author & date (secondary text)
-  - Genre tags (pill/badge components)
-  - Comment count indicator (seen in screenshots as number with chat icon)
-- Implement search with debounced input
-- Support genre filtering via dropdown/tags
+**Requirements**  
+- Display a searchable/filterable list of books.  
+- Show basic metadata (title, author, genre).  
+- Let the user navigate to `/books/[bookId]` when a book is clicked.
 
-#### Reading Screen
-- Three-panel layout:
-  1. Left: Navigation/back button
-  2. Center: Book content (main)
-  3. Right: Dewey AI assistant (collapsible)
-- Text display features:
-  - Clean typography (large, readable font)
-  - Proper paragraph spacing
-  - Progress indicator (percentage) at bottom
-  - Small chat icons in margins where previous discussions exist
-- Selection handling:
-  - Capture text selection events
-  - Show floating action button or context menu
-  - Send selected text to Dewey panel
+**Implementation Steps**  
+1. **BookList**: Fetch books from Supabase in `getServerSideProps` or Next.js app directory data fetching.  
+2. **SearchBar**: Implement a debounced search (e.g., 300ms) to filter books.  
+3. **BookCard**: Display book title, author, and optional comment/interaction counts.
 
-#### Dewey AI Assistant
-- Header with:
-  - AI model selector (e.g., "Gemini 2.0 Flash")
-  - Close/minimize buttons
-  - Light/dark mode toggle
-- Chat interface showing:
-  - Selected text in quote block
-  - AI responses in distinct styling
-  - Action buttons:
-  - Explain
-  - Discuss
-  - Quiz
-  - Recap
-  - Look Up in Book
-- Error handling with user-friendly messages
-- Loading states for AI responses
+**Testing**  
+- **Test**: Confirm the page loads a list of books from Supabase.  
+- **Test**: Searching for a known title returns the correct subset of books.  
+- **Test**: Clicking a book navigates to the correct `bookId` route.
 
-### Data Models
+### 6.3 Reading Screen
 
-interface Book {
-  id: string
-  title: string
-  author: string
-  dates: string
-  genres: string[]
-  content: string
-  commentCount: number
-}
+**Requirements**  
+- Present the selected book's text in an easy-to-read format.  
+- Show reading progress.  
+- Display the most recent Q&A interaction prominently in the reading pane.
+- Show a scrollable history of past questions and discussions.
+- Provide a collapsible right-side pane showing a macro-level document summary.
+- Optionally show icons or markers where past AI conversations exist.
 
-interface Conversation {
-  id: string
-  bookId: string
-  location: number // paragraph index
-  selectedText: string
-  messages: ChatMessage[]
-}
+**Implementation Steps**  
+1. **ReaderView**: Layout with (a) left sidebar or top nav, (b) main reading pane, (c) Dewey panel (initially hidden), (d) collapsible macro summary pane on the right.  
+2. **TextContent**: Render paragraphs with unique IDs or indexes (for conversation references).  
+3. **ProgressBar**: Calculate reading progress based on scroll position vs. total text length.  
+4. **Q&A Display**:
+   - Show the most recent Q&A interaction at the top of the reading pane
+   - Provide a scrollable list of past questions and discussions below
+   - Each past question should be clickable to view the full conversation
+5. **MacroSummaryPane**:
+   - Collapsible right-side panel showing document-wide context and structure
+   - Maintain high-level summary of the entire document
+   - Contrast with main pane's focus on current viewport context
+   - Allow quick navigation to different document sections
+6. **Conversation Markers**: If the user has prior conversation data, place icons or highlights next to paragraphs.
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-  action?: 'explain' | 'discuss' | 'quiz' | 'recap' | 'lookup'
-}
+**Testing**  
+- **Test**: The reading page loads text from Supabase for the correct `bookId`.  
+- **Test**: Scrolling updates the progress bar.  
+- **Test**: Most recent Q&A is displayed prominently and correctly.
+- **Test**: Past questions are accessible and clicking them shows the full conversation.
+- **Test**: Macro summary pane can be collapsed/expanded and shows correct document-wide context.
+- **Test**: For a known conversation in paragraph N, verify an icon appears next to that paragraph.
 
-### Key Interactions
+### 6.4 AI Assistant (Dewey)
 
-1. Text Selection Flow:
-```typescript
-// ReaderView.tsx
-const handleTextSelection = () => {
-  const selection = window.getSelection()
-  if (selection && !selection.isCollapsed) {
-    const text = selection.toString()
-    setSelectedText(text)
-    openDeweyPanel()
-  }
-}
-```
+**Requirements**  
+- Appears as a collapsible pane or modal.  
+- Displays the user's question and AI responses.  
+- Allows actions: "Explain," "Discuss," "Quiz," "Recap," "Look up in book."
 
-2. AI Response Flow:
-```typescript
-// DeweyPanel.tsx
-const handleAction = async (action: string) => {
-  try {
-    setLoading(true)
-    const response = await fetch('/api/dewey/actions', {
-      method: 'POST',
-      body: JSON.stringify({
-        action,
-        selectedText,
-        bookContext: currentBookData,
-        conversationHistory
-      })
-    })
-    const data = await response.json()
-    addMessageToHistory(data)
-  } catch (error) {
-    showErrorMessage()
-  } finally {
-    setLoading(false)
-  }
-}
-```
+**Implementation Steps**  
+1. **DeweyPanel**: A sidebar that can open/close; holds conversation messages.  
+2. **ActionButtons**: The user can choose an action after highlighting text or from pre-labeled buttons.  
+3. **ChatHistory**: Renders conversation messages from in-memory or Supabase.  
+4. **Highlight-based Summons**: Listen for `mouseup` on the reading pane; if text is selected, show a small floating button (or automatically open Dewey with that text as context).
 
-### State Management
+**Testing**  
+- **Test**: Selecting text triggers the Dewey panel to open with the snippet in a quote block.  
+- **Test**: Clicking "Explain" hits the correct Next.js API endpoint and returns an AI answer.  
+- **Test**: "Quiz" generates a question/answer set or flashcards in the UI.
 
-Use React Context for:
-- Current book data
-- Reading progress
-- Theme preferences
-- Conversation history
+### 6.5 Conversation Persistence
 
-Use local component state for:
-- Text selection
-- UI interactions
-- Loading states
+**Requirements**  
+- If the user is logged in, store conversation snippets in Supabase's `conversations` table.  
+- For anonymous sessions, store them in memory (cleared on refresh).
 
-### Styling Approach
+**Implementation Steps**  
+1. **Database Models**:  
+   ```ts
+   interface Conversation {
+     id: string
+     userId?: string
+     bookId: string
+     location: number   // paragraph index or offset
+     selectedText: string
+     messages: ChatMessage[]
+   }
 
-Use Tailwind CSS (via shadcn) with:
-- Dark/light theme variables
-- Responsive breakpoints for mobile
-- Typography scale for reading view
-- Consistent spacing system
-- Animation utilities for transitions
+   interface ChatMessage {
+     role: 'user' | 'assistant'
+     content: string
+     timestamp: string
+     action?: 'explain' | 'discuss' | 'quiz' | 'recap' | 'lookup'
+   }
+   ```
+2. **Client-Side**:  
+   - After AI response, post conversation data to Supabase if user is logged in.  
+   - On reading page load, fetch prior `conversations` for that `bookId`.
 
-This structure provides a solid foundation for the core features while maintaining flexibility for future enhancements. The junior team should focus on implementing these components incrementally, starting with the basic library view and reading interface before adding the AI integration.
+**Testing**  
+- **Test**: Start a conversation, refresh the page → Confirm the conversation reappears (if logged in).  
+- **Test**: Anonymous user sees conversation only until refresh (stored in local state).
+
+### 6.6 Supabase Integration
+
+**Requirements**  
+- Use Supabase for storing books, user data, conversation logs.  
+- Potentially store large book texts in a text or `jsonb` column.
+
+**Implementation Steps**  
+1. **Supabase Client**: Initialize in `lib/supabase/index.ts` with the project URL/key from environment variables.  
+2. **Queries**:  
+   - `getBooks()`: fetch all or filter by search.  
+   - `getBookById(bookId)`: retrieve a single book's text.  
+   - `saveConversation()`: insert or update conversation record.  
+3. **Row-Level Security**: If implementing user accounts, ensure only that user can view their conversation data.
+
+**Testing**  
+- **Test**: Insert a mock book, confirm it shows on the library screen.  
+- **Test**: Insert a conversation log, confirm retrieval for the same user and book.
+
+### 6.7 LLM Integration
+
+**Requirements**  
+- Provide a standard interface for calling the chosen LLM (Anthropic, OpenAI, or Gemini).  
+- Handle specialized requests: Q&A, summarization, "look up in book," quiz generation.
+
+**Implementation Steps**  
+1. **ai/index.ts**: Create a function `callLLM(params): Promise<string>` that standardizes the API call.  
+2. **Request Shaping**: Prepend the selected text and book context.  
+3. **API Route**: `pages/api/dewey/actions.ts` to handle different action types (`explain`, `quiz`, etc.) and call `callLLM()` accordingly.  
+4. **Error Handling**: If the LLM fails or times out, show a user-friendly error message.
+
+**Testing**  
+- **Test**: Make a dummy request to the LLM (e.g., "Hello world") and confirm a response arrives.  
+- **Test**: Summaries, quiz questions, or lookups produce appropriate results without error.  
+- **Test**: Large text input triggers partial context trimming or chunking (avoid token overload).
+
+---
 
 ## 7. Milestones & Roadmap
 
-### Milestone 1: Basic Reading & Library
+Below are the implementation milestones in order of priority. Each milestone should be **completed and tested** before moving to the next:
 
-Next.js page for library (list of books).
-Basic reading page for a single book's text.
-Minimal styling with shadcn.
-Milestone 2: AI Assistant Integration
+### **Milestone 1: Project Setup & Basic UI** ✓
+1. **Tasks**  
+   - Initialize Next.js project with TypeScript and Tailwind CSS
+   - Set up project structure and documentation
+   - Create basic component hierarchy
+   - Implement placeholder UI for all major features
+2. **Testing**  
+   - **Smoke Test**: App runs without errors
+   - **Visual Test**: All components render properly
+   - **Navigation Test**: Routes work as expected
 
-Infrastructure to connect to chosen LLM (Gemini, Anthropic, OpenAI).
-Display an assistant pane that can parse user selections and return answers.
-Implement ephemeral conversation storage in memory (for anonymous usage).
-Milestone 3: Persistence & Additional Features
+### **Milestone 2: Text Selection & Basic Dewey Interaction**
+1. **Tasks**  
+   - Add text selection handlers to reading view
+   - Create floating action menu for selected text
+   - Implement Dewey panel collapse/expand
+   - Add scroll position tracking for progress bar
+2. **Testing**  
+   - **Selection Test**: Text selection works smoothly
+   - **UI Test**: Action menu appears in correct position
+   - **Progress Test**: Reading progress updates accurately
 
-Supabase integration for user profiles, conversation logs, reading progress.
-Recap, quizzes, and "look up in book" features.
-UI for "stickies" to revisit past conversations.
-Milestone 4: Optimization & Enhancements
+### **Milestone 3: Reading Experience Enhancement**
+1. **Tasks**  
+   - Add reading controls (font size, line height)
+   - Implement proper typography and spacing
+   - Add mobile-responsive layout
+   - Implement proper touch handling
+2. **Testing**  
+   - **Control Test**: Reading controls work properly
+   - **Mobile Test**: UI works on different screen sizes
+   - **Touch Test**: Mobile interactions are smooth
 
-Mobile-friendly improvements (e.g., responsive AI assistant layout).
-Potential voice input, timeline/character map (for fiction).
-Integrate analytics or error reporting for debugging.
+### **Milestone 4: Supabase Integration**
+1. **Tasks**  
+   - Set up Supabase project
+   - Create database schema
+   - Implement book fetching and storage
+   - Add reading progress persistence
+2. **Testing**  
+   - **Data Test**: Books load correctly
+   - **State Test**: Reading progress persists
+   - **Performance Test**: Loading times are acceptable
+
+### **Milestone 5: LLM Integration**
+1. **Tasks**  
+   - Choose and integrate LLM provider
+   - Implement conversation handling
+   - Add response caching if needed
+   - Set up error handling
+2. **Testing**  
+   - **Response Test**: LLM provides relevant answers
+   - **Performance Test**: Response times are acceptable
+   - **Error Test**: Failures are handled gracefully
+
+### **Milestone 6: Enhanced Features**
+1. **Tasks**  
+   - Implement book search and filtering
+   - Add user highlights and notes
+   - Add conversation persistence
+   - Implement "Look up in book" feature
+2. **Testing**  
+   - **Search Test**: Book finding works efficiently
+   - **Storage Test**: User data persists correctly
+   - **Feature Test**: All enhanced features work as expected
+
+---
 
 ## 8. Risks & Considerations
 
-LLM Cost & Rate Limits:
-Must monitor usage carefully and implement caching or cost-limiting if usage spikes.
-Hallucination & Accuracy:
-The assistant might produce inaccuracies or "hallucinations." Provide disclaimers or highlight relevant references to mitigate confusion.
-Performance Over Large Books:
-Book texts can be quite large. Employ strategies such as streaming text to the client or chunking text in the database.
+1. **LLM Cost & Rate Limits**: Keep usage logs and implement caching if queries spike.  
+2. **Accuracy / Hallucination**: Make it clear that AI answers may have errors.  
+3. **Performance Over Large Text**: Consider streaming or chunking big books in the reading pane.  
+4. **User Accounts vs. Anonymous**: Evaluate which features require sign-in (persistence, personal notes).  
+
+---
 
 ## 9. Success Criteria
 
-User Engagement:
-
-Users frequently highlight text to query the AI, ask for recaps, or generate quizzes.
-Positive feedback on the frictionless reading experience.
-Performance:
-
-Quick load times for both library and reading screens.
-AI responses are returned and displayed within a user-acceptable timeframe (e.g., under 2-3 seconds).
-Stability:
-
-Minimal downtime.
-Proper logging, with robust error handling around LLM calls.
-
-
-## Future Enhancements
-
+1. **User Engagement**: Users regularly highlight text, ask questions, generate quizzes, or request recaps.  
+2. **Performance**: The library screen and reading screen load quickly, and LLM responses arrive under ~3 seconds.  
+3. **Stability**: Minimal crashes or unhandled errors; robust logs for error diagnosis.  
+4. **Positive Feedback**: Users find the reading + AI experience intuitive and helpful.
