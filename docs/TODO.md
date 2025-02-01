@@ -13,61 +13,93 @@
    - Add keyboard shortcuts for common actions
    - Implement proper focus management
 
-2. **Dewey Panel Improvements**
+2. **LLM Integration Setup**
+   - Create LLM service layer with dev/prod modes:
+     - Set up configuration interface
+     - Implement development mode with mock responses
+     - Add production mode with Gemini integration
+     - Create response processors for each action type
+   - Add environment variable handling:
+     - LLM API keys
+     - Mode toggle (dev/prod)
+     - Rate limiting settings
+   - Implement error handling and retries
+   - Add response caching where appropriate
+
+3. **Dewey Panel Improvements**
    - Add collapse/expand functionality
    - Create question input component
    - Implement proper scroll behavior for chat history
-   - Add loading states for future AI interactions
+   - Add loading states for LLM interactions
    - Style the question input area to match the screenshot
+   - Add proper error states and messages
 
-3. **Progress Bar Implementation**
+4. **Progress Bar Implementation**
    - Add scroll position tracking
    - Calculate and display reading progress
    - Save progress to localStorage
 
 ### Medium Priority
-1. **UI Polish**
+1. **LLM Response Processing**
+   - Implement specialized processors for each action:
+     - Explanation formatter
+     - Discussion handler
+     - Quiz generator
+     - Recap processor
+     - Look-up handler
+   - Add markdown parsing and formatting
+   - Implement citation extraction
+   - Add response validation
+
+2. **Context Management**
+   - Implement conversation thread tracking
+   - Add book context management
+   - Create context window handling
+   - Set up previous discussion references
+
+3. **UI Polish**
    - Fix component import linter errors
    - Add proper loading states for book content
    - Implement error boundaries
    - Add proper transitions for panel open/close
 
-2. **Reading Experience**
+4. **Reading Experience**
    - Add font size controls
    - Implement proper paragraph spacing
    - Add chapter navigation (if applicable)
    - Consider adding line height controls
 
-3. **Mobile Responsiveness**
-   - Make Dewey panel full-screen on mobile
-   - Add proper touch handling for text selection
-   - Adjust typography for smaller screens
-
 ### Low Priority
-1. **Development Setup**
-   - Set up testing environment
-   - Add proper TypeScript configurations
-   - Set up ESLint rules
-   - Add Prettier configuration
+1. **Development Tools**
+   - Create mock response generator
+   - Add response override capability
+   - Implement network delay simulation
+   - Add debugging tools for LLM responses
 
-2. **Documentation**
-   - Add component documentation
-   - Create contribution guidelines
-   - Document styling conventions
-   - Add development setup instructions
+2. **Testing Infrastructure**
+   - Set up unit tests for LLM processors
+   - Add integration tests with mock responses
+   - Create error handling test suite
+   - Implement context management tests
+
+3. **Documentation**
+   - Document LLM integration
+   - Create response format specifications
+   - Document dev/prod mode usage
+   - Add troubleshooting guides
 
 ## Future Milestones
-1. **Supabase Integration**
+1. **Enhanced LLM Features**
+   - Add response caching
+   - Implement rate limiting
+   - Add usage monitoring
+   - Optimize token usage
+
+2. **Supabase Integration**
    - Set up Supabase project
    - Create database schema
    - Implement real book fetching
    - Add user authentication
-
-2. **AI Integration**
-   - Choose and integrate LLM provider
-   - Implement conversation persistence
-   - Add rate limiting
-   - Implement error handling
 
 3. **Enhanced Features**
    - Add search functionality

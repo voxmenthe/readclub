@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import Header from './Header';
 
@@ -9,10 +7,12 @@ interface BookLayoutProps {
 
 export default function BookLayout({ children }: BookLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
-      <main className="relative">
-        {children}
+      <main className="flex">
+        <div className="flex-1">
+          {children}
+        </div>
       </main>
     </div>
   );

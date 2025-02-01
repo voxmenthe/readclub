@@ -264,19 +264,111 @@ src/
 ### 6.7 LLM Integration
 
 **Requirements**  
-- Provide a standard interface for calling the chosen LLM (Anthropic, OpenAI, or Gemini).  
-- Handle specialized requests: Q&A, summarization, "look up in book," quiz generation.
+- Provide a flexible interface for LLM integration with development/production modes:
+  - Development mode: Use pre-defined responses for quick testing
+  - Production mode: Use actual LLM calls with proper error handling
+- Support different types of interactions:
+  - Explain: Detailed explanation of selected text
+  - Discuss: Open-ended discussion about themes, meaning, etc.
+  - Quiz: Generate relevant questions about the content
+  - Recap: Summarize previous content
+  - Look Up: Find references to terms/characters in the book
+- Maintain conversation context:
+  - Track current conversation thread
+  - Access broader book context when needed
+  - Support reference to previous discussions
+- Handle errors and rate limiting gracefully
 
 **Implementation Steps**  
-1. **ai/index.ts**: Create a function `callLLM(params): Promise<string>` that standardizes the API call.  
-2. **Request Shaping**: Prepend the selected text and book context.  
-3. **API Route**: `pages/api/dewey/actions.ts` to handle different action types (`explain`, `quiz`, etc.) and call `callLLM()` accordingly.  
-4. **Error Handling**: If the LLM fails or times out, show a user-friendly error message.
+1. **LLM Service Layer**:
+   ```typescript
+   interface LLMConfig {
+     mode: 'development' | 'production';
+     model: 'gemini-pro' | 'gpt-4' | 'claude-3';
+     apiKey?: string;
+     maxTokens?: number;
+     temperature?: number;
+   }
+
+   interface LLMRequest {
+     action: 'explain' | 'discuss' | 'quiz' | 'recap' | 'lookup';
+     selectedText: string;
+     question?: string;
+     bookContext?: {
+       title: string;
+       currentLocation: number;
+       previousDiscussions?: Array<Discussion>;
+     };
+     conversationHistory?: Array<Message>;
+   }
+   ```
+
+2. **Response Processing**:
+   - Implement middleware for each action type
+   - Format responses based on action (e.g., quiz format vs. explanation)
+   - Add citations/references where applicable
+   - Handle markdown formatting
+
+3. **Development Mode**:
+   - Create a set of realistic placeholder responses
+   - Simulate network delays and errors
+   - Allow override of specific responses for testing
+
+4. **Production Mode**:
+   - Implement proper error handling and retries
+   - Add rate limiting and token counting
+   - Cache common responses where appropriate
+   - Log usage and errors for monitoring
+
+5. **Context Management**:
+   - Track conversation threads
+   - Maintain book context in memory/storage
+   - Implement context window management
 
 **Testing**  
-- **Test**: Make a dummy request to the LLM (e.g., "Hello world") and confirm a response arrives.  
-- **Test**: Summaries, quiz questions, or lookups produce appropriate results without error.  
-- **Test**: Large text input triggers partial context trimming or chunking (avoid token overload).
+- Unit tests for each action type
+- Integration tests with mock LLM responses
+- Error handling and rate limit testing
+- Context management testing
+- Toggle between dev/prod modes testing
+
+### 6.8 Response Processing
+
+**Requirements**  
+- Process raw LLM responses into structured formats:
+  ```typescript
+  interface ProcessedResponse {
+    type: 'explanation' | 'discussion' | 'quiz' | 'recap' | 'lookup';
+    content: {
+      mainText: string;
+      citations?: Array<Citation>;
+      questions?: Array<QuizQuestion>;
+      references?: Array<BookReference>;
+    };
+    metadata: {
+      processingTime: number;
+      tokenCount: number;
+      contextUsed: boolean;
+    };
+  }
+  ```
+
+**Implementation Steps**  
+1. **Response Processors**:
+   - Create specialized processors for each action type
+   - Implement markdown parsing and formatting
+   - Add citation extraction and verification
+   - Handle response validation
+
+2. **Error Handling**:
+   - Define clear error types and messages
+   - Implement fallback responses
+   - Add retry logic for recoverable errors
+
+3. **Response Enhancement**:
+   - Add relevant book citations
+   - Cross-reference with previous discussions
+   - Format for optimal display
 
 ---
 

@@ -1,5 +1,7 @@
 # AI Reading Club - Technical Implementation Summary
 
+This contains a summary of the project structure and the features that have been implemented so far.
+
 ## Project Structure
 The project follows a Next.js 13+ app directory structure with TypeScript and Tailwind CSS. Key components are organized as follows:
 

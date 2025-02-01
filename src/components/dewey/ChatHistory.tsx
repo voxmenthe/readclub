@@ -1,11 +1,7 @@
 'use client';
 
 import React from 'react';
-
-interface Message {
-  text: string;
-  isUser: boolean;
-}
+import { Message } from '@/lib/ai/types';
 
 interface ChatHistoryProps {
   messages: Message[];
@@ -26,15 +22,33 @@ export default function ChatHistory({ messages }: ChatHistoryProps) {
         <div
           key={index}
           className={`p-4 rounded-lg ${
-            message.isUser
-              ? 'bg-blue-50 text-blue-900'
-              : 'bg-gray-50 text-gray-900'
+            message.role === 'user'
+              ? 'bg-blue-50 ml-8'
+              : 'bg-gray-50 mr-8'
           }`}
         >
-          <div className="text-xs font-medium mb-1">
-            {message.isUser ? 'You' : 'Dewey'}
+          <div className="flex items-start gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              message.role === 'user'
+                ? 'bg-blue-500'
+                : 'bg-gray-500'
+            }`}>
+              <span className="text-white text-sm">
+                {message.role === 'user' ? 'U' : 'D'}
+              </span>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-gray-900 whitespace-pre-wrap">{message.content}</p>
+              {message.action && (
+                <span className="mt-1 text-xs text-gray-500">
+                  Action: {message.action}
+                </span>
+              )}
+              <span className="block mt-1 text-xs text-gray-500">
+                {new Date(message.timestamp).toLocaleTimeString()}
+              </span>
+            </div>
           </div>
-          <div className="text-sm whitespace-pre-wrap">{message.text}</div>
         </div>
       ))}
     </div>

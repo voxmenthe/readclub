@@ -1,64 +1,57 @@
-import React, { useEffect, useRef } from 'react';
-import { useCallback } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 
 interface QuestionInputProps {
   selectedText: string;
   onSubmit: (question: string) => void;
+  isLoading: boolean;
 }
 
-export default function QuestionInput({ selectedText, onSubmit }: QuestionInputProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+export default function QuestionInput({ selectedText, onSubmit, isLoading }: QuestionInputProps) {
+  const [question, setQuestion] = useState('');
 
-  // Auto-resize textarea as content changes
-  const adjustTextareaHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, []);
-
-  // Handle keyboard shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      const textarea = textareaRef.current;
-      if (textarea && textarea.value.trim()) {
-        onSubmit(textarea.value);
-        textarea.value = '';
-        adjustTextareaHeight();
-      }
-    }
-  }, [onSubmit, adjustTextareaHeight]);
-
-  // Auto-focus and populate with selected text
+  // Update question when new text is selected
   useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea && selectedText) {
-      textarea.value = selectedText + '\n\n'; // Add space for the question
-      textarea.focus();
-      // Place cursor after the selected text
-      textarea.setSelectionRange(
-        selectedText.length + 2,
-        selectedText.length + 2
-      );
-      adjustTextareaHeight();
+    if (selectedText && !question.includes(selectedText)) {
+      setQuestion(`${selectedText}\n\nMy question: `);
     }
-  }, [selectedText, adjustTextareaHeight]);
+  }, [selectedText]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (question.trim() && !isLoading) {
+      onSubmit(question);
+      setQuestion('');
+    }
+  };
 
   return (
-    <div className="relative">
-      <textarea
-        ref={textareaRef}
-        className="w-full min-h-[100px] p-3 text-sm text-gray-900 bg-white border border-gray-200 
-                   rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-        placeholder="Selected text will appear here. Add your question below..."
-        onKeyDown={handleKeyDown}
-        onChange={adjustTextareaHeight}
-      />
-      <div className="mt-1 text-xs text-gray-500">
-        Press Cmd/Ctrl + Enter to submit
-      </div>
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="relative">
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask a question about the selected text..."
+          className="w-full p-3 pr-24 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 min-h-[120px] resize-none"
+          disabled={isLoading}
+        />
+        <button
+          type="submit"
+          disabled={!question.trim() || isLoading}
+          className={`absolute right-2 top-2 px-4 py-1.5 rounded-md text-white transition-colors ${
+            question.trim() && !isLoading
+              ? 'bg-blue-500 hover:bg-blue-600'
+              : 'bg-gray-300 cursor-not-allowed'
+          }`}
+        >
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            'Ask'
+          )}
+        </button>
+      </form>
     </div>
   );
 } 
