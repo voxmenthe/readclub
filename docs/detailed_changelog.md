@@ -1,5 +1,86 @@
 # Detailed Changelog
 
+## Session 2 (2024-02-02) - LLM Integration and UI Improvements
+
+### LLM Integration Setup
+1. Created LLM service layer:
+   - Added types for LLM requests and responses
+   - Implemented development mode with mock responses
+   - Added support for different action types (explain, discuss, quiz, recap)
+
+2. Created API route for LLM requests:
+   - Implemented `/api/dewey` endpoint
+   - Added proper error handling
+   - Set up request/response types
+
+### UI Improvements
+1. Enhanced QuestionInput component:
+   - Added auto-expanding textarea
+   - Implemented top and bottom resize handles
+   - Added keyboard shortcut support (⌘/Ctrl + Enter)
+   - Improved placeholder text behavior
+   - Added auto-scroll on new text selection
+
+2. Improved DeweyPanel:
+   - Added expand/collapse functionality
+   - Improved message display with proper spacing
+   - Added loading states
+   - Implemented proper message history
+
+3. Enhanced text selection handling:
+   - Added support for multiple selections
+   - Improved selected text display
+   - Added auto-expansion based on selection length
+
+### Bug Fixes and Optimizations
+1. Fixed Next.js 15 dynamic params handling:
+   - Updated BookPage component to follow new patterns
+   - Fixed metadata generation
+   - Added proper static params generation
+
+2. Improved typography and spacing:
+   - Enhanced text contrast
+   - Fixed font sizes for better readability
+   - Improved message spacing in chat history
+
+3. Fixed various UI issues:
+   - Corrected resize handle behavior
+   - Fixed placeholder text issues
+   - Improved loading states
+
+### Technical Improvements
+1. Added proper error handling:
+   - Implemented error messages in chat
+   - Added loading spinners
+   - Improved error states in UI
+
+2. Enhanced component architecture:
+   - Separated concerns between components
+   - Improved state management
+   - Added proper TypeScript types
+
+### Design Decisions
+1. **Input Handling**:
+   - Chose auto-expanding textarea over fixed size
+   - Implemented both auto and manual resize capabilities
+   - Added subtle visual feedback for interactions
+
+2. **Message Display**:
+   - Used alternating colors for better conversation flow
+   - Added timestamps and action types
+   - Implemented proper spacing between messages
+
+3. **Interaction Design**:
+   - Added keyboard shortcuts for power users
+   - Implemented smooth transitions
+   - Added loading states for better UX
+
+### Known Issues to Address
+1. Need to implement proper book data fetching
+2. Progress bar functionality still pending
+3. Need to add more sophisticated error handling for LLM responses
+4. Consider adding rate limiting for API requests
+
 ## Session 1 (2024-02-01) - Initial Project Setup and Basic UI Implementation
 
 ### Project Initialization

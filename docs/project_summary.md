@@ -3,13 +3,16 @@
 This contains a summary of the project structure and the features that have been implemented so far.
 
 ## Project Structure
-The project follows a Next.js 13+ app directory structure with TypeScript and Tailwind CSS. Key components are organized as follows:
+The project follows a Next.js 15+ app directory structure with TypeScript and Tailwind CSS. Key components are organized as follows:
 
 ```
 src/
   ├─ app/                      # Next.js app directory
   │   ├─ layout.tsx           # Root layout with Inter font
   │   ├─ page.tsx            # Library/home page
+  │   ├─ api/
+  │   │   └─ dewey/
+  │   │       └─ route.ts    # LLM API endpoint
   │   └─ books/
   │       └─ [bookId]/
   │           └─ page.tsx    # Book reading page
@@ -19,19 +22,21 @@ src/
   │   │   ├─ BookList.tsx    # Grid of books with responsive layout
   │   │   └─ BookCard.tsx    # Individual book display with hover effects
   │   ├─ reader/
-  │   │   ├─ ReaderView.tsx  # Main reading layout with Dewey panel spacing
-  │   │   ├─ TextContent.tsx # Book content display
+  │   │   ├─ ReaderView.tsx  # Main reading layout with Dewey panel
   │   │   └─ ProgressBar.tsx # Reading progress indicator
   │   ├─ dewey/
-  │   │   ├─ DeweyPanel.tsx  # AI assistant sidebar
-  │   │   ├─ ChatHistory.tsx # Conversation display
-  │   │   └─ ActionButtons.tsx # AI action buttons
+  │   │   ├─ DeweyPanel.tsx  # AI assistant sidebar with expand/collapse
+  │   │   ├─ ChatHistory.tsx # Conversation display with timestamps
+  │   │   ├─ QuestionInput.tsx # Auto-expanding input with resize handles
+  │   │   └─ ActionButtons.tsx # AI action buttons with state
   │   └─ layout/
   │       ├─ Header.tsx      # Navigation header
   │       └─ BookLayout.tsx  # Book page layout wrapper
   └─ lib/
-      ├─ supabase/          # Supabase client setup (placeholder)
-      └─ ai/                # AI service interfaces (placeholder)
+      └─ ai/                 # AI service layer
+          ├─ llm-service.ts  # LLM service with dev/prod modes
+          ├─ types.ts        # Shared types for LLM integration
+          └─ mock-responses.ts # Development mode responses
 ```
 
 ## Implemented Features
@@ -44,35 +49,42 @@ src/
 
 ### Reading Screen
 - Clean reading interface with proper typography
-- Right-side Dewey panel with fixed positioning
+- Collapsible right-side Dewey panel
+- Text selection support with multi-select
 - Progress bar placeholder
-- Proper content spacing to accommodate the Dewey panel
 
 ### Dewey AI Assistant
-- Fixed sidebar panel with action buttons
+- Expandable/collapsible sidebar panel
 - Five primary actions: Explain, Discuss, Quiz, Recap, Look up
-- Placeholder chat history interface
-- Empty state messaging
+- Auto-expanding input with resize handles
+- Keyboard shortcuts (⌘/Ctrl + Enter)
+- Message history with timestamps
+- Loading states and error handling
+- Development mode with mock responses
 
-### Navigation
-- Header with app title and library link
-- Book-to-library navigation
-- Dynamic routing for book pages
+### LLM Integration
+- API endpoint for LLM requests
+- Service layer with dev/prod modes
+- Structured message types
+- Error handling and loading states
+- Mock responses for development
 
 ### Technical Infrastructure
-- TypeScript interfaces for books and AI responses
-- Supabase client setup (awaiting credentials)
-- AI service structure defined (awaiting LLM integration)
+- TypeScript interfaces for all components
+- Next.js 15+ App Router setup
+- API routes for LLM integration
+- Development/Production mode switching
 
 ## Styling
 - Tailwind CSS for responsive design
-- Custom shadows and transitions for interactive elements
-- Consistent spacing and typography
-- High-contrast color scheme for readability
+- Custom shadows and transitions
+- Proper typography and spacing
+- High-contrast color scheme
+- Loading states and animations
 
 ## Current Limitations
-- Using dummy data instead of real book content
-- No text selection functionality yet
-- AI features not yet connected to backend
+- Using mock LLM responses in development
 - Progress bar not yet functional
-- No dark mode support yet 
+- No rate limiting on API requests
+- No dark mode support yet
+- Book data still using dummy content 
