@@ -10,11 +10,16 @@ interface QuestionInputProps {
 
 export default function QuestionInput({ selectedText, onSubmit, isLoading }: QuestionInputProps) {
   const [question, setQuestion] = useState('');
+  const [lastSelectedText, setLastSelectedText] = useState('');
 
   // Update question when new text is selected
   useEffect(() => {
-    if (selectedText && !question.includes(selectedText)) {
-      setQuestion(`${selectedText}\n\nMy question: `);
+    if (selectedText && selectedText !== lastSelectedText) {
+      setQuestion(prev => {
+        const newText = prev ? `${prev}\n\n${selectedText}` : selectedText;
+        return newText;
+      });
+      setLastSelectedText(selectedText);
     }
   }, [selectedText]);
 
@@ -23,6 +28,7 @@ export default function QuestionInput({ selectedText, onSubmit, isLoading }: Que
     if (question.trim() && !isLoading) {
       onSubmit(question);
       setQuestion('');
+      setLastSelectedText('');
     }
   };
 
