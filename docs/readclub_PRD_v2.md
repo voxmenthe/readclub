@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-**Product Name**: AI Reading Club (powered by "Dewey" – the AI reading companion)  
+**Product Name**: AI Reading Club (powered by “Dewey” – the AI reading companion)  
 **Goal**: Provide an AI-enhanced reading experience that helps users read more effectively, stay engaged, and learn via inline Q&A, context-based summaries, quizzes/flashcards, and recaps of previously read chapters.
 
 ---
@@ -17,12 +17,12 @@
 2. **Reading Screen**  
    - Central reading pane with minimal clutter.  
    - The user can select text to get help from Dewey (the AI assistant).  
-   - A collapsible AI assistant pane for Q&A, summaries, quizzes, and "look up in book."  
-   - "Stickies" or icons in the margin to revisit past conversations.
+   - A collapsible AI assistant pane for Q&A, summaries, quizzes, and “look up in book.”  
+   - “Stickies” or icons in the margin to revisit past conversations.
 
 3. **AI Assistant (Dewey)**  
    - Understand context from user selections and the broader book.  
-   - Provide Q&A, quizzes/flashcards, recaps, and "look up in book" references.  
+   - Provide Q&A, quizzes/flashcards, recaps, and “look up in book” references.  
    - Maintain conversation history with user.
 
 4. **User Profile & Reading Progress**  
@@ -54,11 +54,11 @@
 ## 4. Data Flow & Sequence
 
 1. **User opens the app** → Library Screen loads books from Supabase.  
-2. **User selects a book** → Reading Screen fetches that book's text and renders it.  
+2. **User selects a book** → Reading Screen fetches that book’s text and renders it.  
 3. **User highlights text** → The AI assistant panel can be shown to handle user requests (Q&A, quiz, etc.).  
 4. **LLM call** → Next.js server sends the request to the LLM provider; returns an answer.  
 5. **Conversation stored** → If the user is signed in, the interaction is stored in Supabase (book ID, conversation ID, text snippet).  
-6. **User revisits old Q&A** → "Stickies" or markers link back to stored conversations.
+6. **User revisits old Q&A** → “Stickies” or markers link back to stored conversations.
 
 ---
 
@@ -129,7 +129,7 @@ src/
 ### 6.3 Reading Screen
 
 **Requirements**  
-- Present the selected book's text in an easy-to-read format.  
+- Present the selected book’s text in an easy-to-read format.  
 - Show reading progress.  
 - Optionally show icons or markers where past AI conversations exist.
 
@@ -148,8 +148,8 @@ src/
 
 **Requirements**  
 - Appears as a collapsible pane or modal.  
-- Displays the user's question and AI responses.  
-- Allows actions: "Explain," "Discuss," "Quiz," "Recap," "Look up in book."
+- Displays the user’s question and AI responses.  
+- Allows actions: “Explain,” “Discuss,” “Quiz,” “Recap,” “Look up in book.”
 
 **Implementation Steps**  
 1. **DeweyPanel**: A sidebar that can open/close; holds conversation messages.  
@@ -159,13 +159,13 @@ src/
 
 **Testing**  
 - **Test**: Selecting text triggers the Dewey panel to open with the snippet in a quote block.  
-- **Test**: Clicking "Explain" hits the correct Next.js API endpoint and returns an AI answer.  
-- **Test**: "Quiz" generates a question/answer set or flashcards in the UI.
+- **Test**: Clicking “Explain” hits the correct Next.js API endpoint and returns an AI answer.  
+- **Test**: “Quiz” generates a question/answer set or flashcards in the UI.
 
 ### 6.5 Conversation Persistence
 
 **Requirements**  
-- If the user is logged in, store conversation snippets in Supabase's `conversations` table.  
+- If the user is logged in, store conversation snippets in Supabase’s `conversations` table.  
 - For anonymous sessions, store them in memory (cleared on refresh).
 
 **Implementation Steps**  
@@ -205,7 +205,7 @@ src/
 1. **Supabase Client**: Initialize in `lib/supabase/index.ts` with the project URL/key from environment variables.  
 2. **Queries**:  
    - `getBooks()`: fetch all or filter by search.  
-   - `getBookById(bookId)`: retrieve a single book's text.  
+   - `getBookById(bookId)`: retrieve a single book’s text.  
    - `saveConversation()`: insert or update conversation record.  
 3. **Row-Level Security**: If implementing user accounts, ensure only that user can view their conversation data.
 
@@ -217,7 +217,7 @@ src/
 
 **Requirements**  
 - Provide a standard interface for calling the chosen LLM (Anthropic, OpenAI, or Gemini).  
-- Handle specialized requests: Q&A, summarization, "look up in book," quiz generation.
+- Handle specialized requests: Q&A, summarization, “look up in book,” quiz generation.
 
 **Implementation Steps**  
 1. **ai/index.ts**: Create a function `callLLM(params): Promise<string>` that standardizes the API call.  
@@ -226,7 +226,7 @@ src/
 4. **Error Handling**: If the LLM fails or times out, show a user-friendly error message.
 
 **Testing**  
-- **Test**: Make a dummy request to the LLM (e.g., "Hello world") and confirm a response arrives.  
+- **Test**: Make a dummy request to the LLM (e.g., “Hello world”) and confirm a response arrives.  
 - **Test**: Summaries, quiz questions, or lookups produce appropriate results without error.  
 - **Test**: Large text input triggers partial context trimming or chunking (avoid token overload).
 
@@ -234,95 +234,109 @@ src/
 
 ## 7. Milestones & Roadmap
 
-Below are expanded milestones with recommended testing steps at each stage. Each milestone should be **completed and tested** before moving to the next:
+Below are expanded milestones with recommended testing steps at each stage.  Each milestone should be **completed and tested** before moving to the next:
 
-### **Milestone 1: Project Setup & Basic UI** ✓
+### **Milestone 1: Project Setup**
+
 1. **Tasks**  
    - Initialize a Next.js project with TypeScript.  
+   - Install dependencies: `react`, `shadcn`, `tailwindcss`, `@supabase/supabase-js`, etc.  
+   - Configure Tailwind + shadcn styling.  
    - Set up basic routes: `/` (library), `/books/[bookId]` (reading screen).
-   - Create component structure and implement basic UI.
-   - Add placeholder content for development.
 2. **Testing**  
    - **Smoke Test**: Run `npm run dev` and ensure the app opens with placeholder text.  
    - **Acceptance**: Confirm the directory structure matches the planned layout and no build errors occur.
 
-### **Milestone 2: Text Selection & Basic Dewey Interaction**
-1. **Tasks**  
-   - Implement text selection in reading view.
-   - Add floating action button for selected text.
-   - Create collapsible Dewey panel with proper scroll behavior.
-   - Add progress bar with scroll position tracking.
-2. **Testing**  
-   - **Test**: Text selection triggers floating action button.
-   - **Test**: Dewey panel collapses/expands smoothly.
-   - **Test**: Progress bar accurately reflects scroll position.
+### **Milestone 2: Basic Library Screen**
 
-### **Milestone 3: Reading Experience Enhancement**
 1. **Tasks**  
-   - Add font size and line height controls.
-   - Implement proper paragraph spacing and typography.
-   - Add chapter navigation if applicable.
-   - Optimize for mobile devices.
+   - Create Supabase table `books` with sample data (title, author, content).  
+   - Implement a simple library page (`index.tsx`) that fetches books via Supabase.  
+   - Display the fetched books in a grid/list using shadcn components.
 2. **Testing**  
-   - **Test**: Reading controls work as expected.
-   - **Test**: Layout remains stable across different screen sizes.
-   - **Test**: Touch interactions work properly on mobile.
+   - **Test**: Book titles appear on the library page.  
+   - **Test**: Minimal styling is correct, no broken layout.  
+   - **Acceptance**: Clicking on a book routes to `/books/[bookId]` (though that page may still be empty).
 
-### **Milestone 4: Supabase Integration**
+### **Milestone 3: Reading Screen Layout & Navigation**
+
 1. **Tasks**  
-   - Set up Supabase project and schema.
-   - Implement book fetching and storage.
-   - Add user authentication (optional).
-   - Store reading progress.
+   - Implement `/books/[bookId].tsx` to fetch the full text from Supabase.  
+   - Display the text in `ReaderView` with basic styling (paragraphs, headings).  
+   - Add a header or minimal nav bar so the user can go back to the Library.
 2. **Testing**  
-   - **Test**: Books load from Supabase correctly.
-   - **Test**: Reading progress persists between sessions.
+   - **Test**: Visiting `/books/1` (or a valid book ID) shows the correct text.  
+   - **Test**: Basic styling/typography is legible.  
+   - **Acceptance**: The user can read an entire book from start to finish with no breaks in the text.
 
-### **Milestone 5: LLM Integration**
+### **Milestone 4: Scroll-based Reading Progress**
+
 1. **Tasks**  
-   - Choose and integrate LLM provider.
-   - Implement conversation handling.
-   - Add rate limiting and error handling.
-   - Set up response caching if needed.
+   - Implement a `ProgressBar` that calculates reading position based on scroll.  
+   - Add logic to store the last scroll position (either in local state or Supabase if logged in).
 2. **Testing**  
-   - **Test**: LLM responses are relevant and timely.
-   - **Test**: Error states are handled gracefully.
+   - **Test**: As the user scrolls from top to bottom, the progress bar moves from 0% to 100%.  
+   - **Test**: Refreshing the page retains the user’s approximate location (if storing in local state or database).  
+   - **Acceptance**: The progress indicator accurately reflects reading location in at least ±5% accuracy.
 
-### **Milestone 6: Conversation Persistence in Supabase**
+### **Milestone 5: Basic AI Assistant Pane (Ephemeral Conversations)**
+
+1. **Tasks**  
+   - Create `DeweyPanel` as a collapsible or side-docked panel.  
+   - Let the user highlight text and open the panel with that snippet shown.  
+   - Implement a single “Ask Dewey” input box that calls a mock LLM API route (`/api/dewey/chat`) returning a dummy response (hardcoded or echo).
+2. **Testing**  
+   - **Test**: Selecting a snippet shows the snippet in Dewey’s panel.  
+   - **Test**: The mock LLM returns some text; verify it appears in the panel.  
+   - **Acceptance**: The panel UI is stable, and ephemeral conversations remain visible while the user stays on the page.
+
+### **Milestone 6: Real LLM Integration & Action Buttons (Explain, Discuss, Quiz, etc.)**
+
+1. **Tasks**  
+   - Integrate one LLM provider (e.g., OpenAI) in `lib/ai/index.ts`.  
+   - In the Dewey panel, add buttons for “Explain,” “Discuss,” “Quiz,” “Recap,” “Look Up in Book.”  
+   - For each button, send a request with `action` + `selectedText` to `/api/dewey/actions`.  
+   - Return the real LLM’s response in the UI.
+2. **Testing**  
+   - **Test**: Clicking each action yields a relevant response from the LLM (e.g., “Explain” returns an explanation, “Quiz” returns multiple choice questions).  
+   - **Test**: Large selections do not crash the app (handle token limits gracefully).  
+   - **Acceptance**: The user can highlight text, pick an action, and see an LLM-based reply within a few seconds.
+
+### **Milestone 7: Conversation Persistence in Supabase**
 
 1. **Tasks**  
    - Create `conversations` and `messages` tables in Supabase.  
    - If the user is signed in (optional auth step), store each new AI exchange.  
-   - On reading page load, fetch and display conversation markers/stickies next to paragraphs.
+   - On reading page load, fetch and display conversation markers/“stickies” next to paragraphs.
 2. **Testing**  
    - **Test**: The conversation data is inserted properly after each user→assistant exchange.  
-   - **Test**: Refreshing the reading page loads the user's past messages.  
+   - **Test**: Refreshing the reading page loads the user’s past messages.  
    - **Test**: Clicking on a sticky displays that conversation snippet in the Dewey panel.  
    - **Acceptance**: Authenticated users see their entire chat history consistently; anonymous users see ephemeral chat only.
 
-### **Milestone 7: "Look Up in Book" & Recap Features**
+### **Milestone 8: “Look Up in Book” & Recap Features**
 
 1. **Tasks**  
-   - Implement "Look Up in Book": search the entire text for references to a character or term.  
+   - Implement “Look Up in Book”: search the entire text for references to a character or term.  
    - Provide a short snippet of each match and link the user directly to those paragraphs.  
-   - Enhance "Recap" to summarize all text read up to the user's current progress location.
+   - Enhance “Recap” to summarize all text read up to the user’s current progress location.
 2. **Testing**  
-   - **Test**: Searching for a character name in "Look Up in Book" returns correct references.  
-   - **Test**: "Recap" only includes text up to the last read paragraph.  
+   - **Test**: Searching for a character name in “Look Up in Book” returns correct references.  
+   - **Test**: “Recap” only includes text up to the last read paragraph.  
    - **Acceptance**: The user can quickly jump to all prior mentions of a term and get a condensed summary of the preceding chapters.
 
-### **Milestone 8: UI Polishing & Responsive Design**
+### **Milestone 9: UI Polishing & Responsive Design**
 
 1. **Tasks**  
    - Refine styling in `ReaderView`, ensure Dewey panel looks good on mobile (collapsible, full-screen overlay, etc.).  
-   - Add "dark mode" toggle if desired.  
+   - Add “dark mode” toggle if desired.  
    - Add animations or transitions for panel open/close.
 2. **Testing**  
    - **Test**: Check app layout on various devices (phone, tablet, desktop).  
    - **Test**: Switch to dark mode – text remains readable, icons remain visible.  
    - **Acceptance**: The reading experience feels smooth, with minimal layout shifting on different screen sizes.
 
-### **Milestone 9: Performance, Error Handling, & Final QA**
+### **Milestone 10: Performance, Error Handling, & Final QA**
 
 1. **Tasks**  
    - Optimize large-book rendering (lazy load or chunking if necessary).  
