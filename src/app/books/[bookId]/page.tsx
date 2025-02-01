@@ -2,7 +2,6 @@ import React from 'react';
 import BookLayout from '@/components/layout/BookLayout';
 import ReaderView from '@/components/reader/ReaderView';
 import { Metadata } from 'next';
-import { Suspense } from 'react';
 
 // Dummy book content for initial UI testing
 const DUMMY_CONTENT = `
@@ -31,17 +30,23 @@ So she was considering in her own mind (as well as she could, for the hot day ma
   };
 }
 
-export async function generateMetadata(props: BookPageProps): Promise<Metadata> {
-  const resolvedParams = await props.params;
-  const book = await getBookData(resolvedParams.bookId);
+export async function generateMetadata({ params }: BookPageProps): Promise<Metadata> {
+  const book = await getBookData(params.bookId);
   return {
     title: `${book.title} | ReadClub`,
   };
 }
 
-export default async function BookPage(props: BookPageProps) {
-  const resolvedParams = await props.params;
-  const book = await getBookData(resolvedParams.bookId);
+// Define which paths should be statically generated
+export async function generateStaticParams() {
+  // For now, just pre-render the first book
+  return [
+    { bookId: '1' }
+  ];
+}
+
+export default async function BookPage({ params }: BookPageProps) {
+  const book = await getBookData(params.bookId);
   
   return (
     <BookLayout>

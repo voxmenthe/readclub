@@ -92,6 +92,11 @@ export default function QuestionInput({ selectedText, onSubmit, isLoading }: Que
     }
   };
 
+  const getPlaceholder = () => {
+    if (question) return '';
+    return `Ask a question about the selected text...\n${navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'} + Enter to submit`;
+  };
+
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="relative">
@@ -130,11 +135,27 @@ export default function QuestionInput({ selectedText, onSubmit, isLoading }: Que
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about the selected text..."
-            className="w-full p-3 pr-24 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 min-h-[120px] resize-none"
+            placeholder={getPlaceholder()}
+            className="w-full p-3 pr-16 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 min-h-[120px] resize-none"
             disabled={isLoading}
             style={{ cursor: isResizing ? 'ns-resize' : 'text' }}
           />
+          
+          <button
+            type="submit"
+            disabled={!question.trim() || isLoading}
+            className={`absolute right-2 top-2 px-4 py-1.5 rounded-md text-white transition-colors ${
+              question.trim() && !isLoading
+                ? 'bg-blue-500 hover:bg-blue-600'
+                : 'bg-gray-300 cursor-not-allowed'
+            }`}
+          >
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              'Ask'
+            )}
+          </button>
           
           {/* Bottom resize handle */}
           <div 
@@ -163,27 +184,6 @@ export default function QuestionInput({ selectedText, onSubmit, isLoading }: Que
               document.addEventListener('mouseup', handleMouseUp);
             }}
           />
-        </div>
-
-        <div className="absolute right-2 top-2 flex items-center gap-2">
-          <span className="text-xs text-gray-500">
-            {(navigator.platform.includes('Mac') ? '⌘' : 'Ctrl') + ' + Enter to submit'}
-          </span>
-          <button
-            type="submit"
-            disabled={!question.trim() || isLoading}
-            className={`px-4 py-1.5 rounded-md text-white transition-colors ${
-              question.trim() && !isLoading
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              'Ask'
-            )}
-          </button>
         </div>
       </form>
     </div>
